@@ -42,4 +42,9 @@ public class StudentController {
                                            @RequestParam(required = false) String email) {
         return studentService.updateStudent(id, name, email);
     }
+
+    @PutMapping(path = "update/{studentId}")
+    public Student updateStudent(@PathVariable("studentId") Long id, @RequestBody Student student) {
+        return studentService.updateStudent(id, student);
+    }
 }

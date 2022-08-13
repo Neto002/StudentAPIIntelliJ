@@ -67,4 +67,29 @@ public class StudentService {
 
         return student;
     }
+
+    @Transactional
+    public Student updateStudent(Long id, Student studentRequest) {
+        Student student = studentRepository.findById(id).orElseThrow(() -> new IllegalStateException(
+                String.format("Student with id %d not found", id)));
+
+        if (studentRequest.getName() != null && studentRequest.getName().length() > 0 &&
+                !Objects.equals(student.getName(), studentRequest.getName())) {
+            student.setName(studentRequest.getName());
+        }
+
+        if (studentRequest.getEmail() != null && studentRequest.getEmail().length() > 0 &&
+                !Objects.equals(student.getEmail(), studentRequest.getEmail())) {
+            Optional<Student> studentOptional = studentRepository.findStudentByEmail(studentRequest.getEmail());
+
+            if (studentOptional.isPresent()) {
+                throw new IllegalStateException(String.format("Email %s already in use by another student",
+                        studentRequest.getEmail()));
+            }
+
+            student.setEmail(studentRequest.getEmail());
+        }
+
+        return student;
+    }
 }
