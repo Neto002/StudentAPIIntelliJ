@@ -5,7 +5,9 @@ import com.neto.treino.spring.intellij.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -40,6 +42,28 @@ public class StudentService {
         }
 
         studentRepository.deleteById(id);
+
+        return student;
+    }
+
+    @Transactional
+    public Student updateStudent(Long id, String name, String email) {
+        Student student = studentRepository.findById(id).orElseThrow(() -> new IllegalStateException(
+                String.format("Student with id %d not found", id)));
+
+        if (name != null && name.length() > 0 && !Objects.equals(student.getName(), name)) {
+            student.setName(name);
+        }
+
+        if (email != null && email.length() > 0 && !Objects.equals(student.getEmail(), email)) {
+            Optional<Student> studentOptional = studentRepository.findStudentByEmail(email);
+
+            if (studentOptional.isPresent()) {
+                throw new IllegalStateException(String.format("Email %s already in use by another student", email));
+            }
+
+            student.setEmail(email);
+        }
 
         return student;
     }
